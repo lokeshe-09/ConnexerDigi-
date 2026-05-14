@@ -79,10 +79,7 @@ const Header = () => {
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/60 backdrop-blur-xl border-b border-slate-200/50 py-3 shadow-sm" : "bg-transparent py-6"}`}>
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold tracking-tight flex items-center gap-2 group">
-          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-300">
-            <Zap className="w-6 h-6 text-white fill-current" />
-          </div>
+        <Link to="/" className="text-2xl font-bold tracking-tight group">
           <span className="text-slate-900 font-display">Connexer<span className="text-blue-600 font-black">Digi</span></span>
         </Link>
         
@@ -566,10 +563,7 @@ const Footer = () => {
        <div className="container-custom">
           <div className="grid md:grid-cols-4 gap-12 mb-16">
             <div className="md:col-span-2 space-y-6">
-              <Link to="/" className="text-2xl font-bold tracking-tight flex items-center gap-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-white fill-current" />
-                </div>
+              <Link to="/" className="text-2xl font-bold tracking-tight">
                 <span className="text-slate-900 font-display font-black">ConnexerDigi</span>
               </Link>
               <p className="text-slate-500 font-medium max-w-sm">
