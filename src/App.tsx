@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { 
   BarChart3, 
   Globe, 
@@ -77,11 +77,11 @@ const Header = () => {
   ];
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/80 backdrop-blur-lg border-b border-slate-100 py-3 shadow-sm" : "bg-transparent py-6"}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/60 backdrop-blur-xl border-b border-slate-200/50 py-3 shadow-sm" : "bg-transparent py-6"}`}>
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold tracking-tight flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <Zap className="w-5 h-5 text-white fill-current" />
+        <Link to="/" className="text-2xl font-bold tracking-tight flex items-center gap-2 group">
+          <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform duration-300">
+            <Zap className="w-6 h-6 text-white fill-current" />
           </div>
           <span className="text-slate-900 font-display">Connexer<span className="text-blue-600 font-black">Digi</span></span>
         </Link>
@@ -142,6 +142,7 @@ const Header = () => {
 };
 
 const Hero = () => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const marqueeImages = [
     "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2426&auto=format&fit=crop",
     "https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=2670&auto=format&fit=crop",
@@ -151,29 +152,75 @@ const Hero = () => {
     "https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2670&auto=format&fit=crop"
   ];
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % marqueeImages.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [marqueeImages.length]);
+
   return (
-    <section className="relative pt-44 pb-20 overflow-hidden bg-white">
-      {/* Background Gradients */}
-      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-50/50 rounded-full blur-[120px] -z-10" />
-      <div className="absolute top-1/2 -right-64 w-[600px] h-[600px] bg-indigo-50/50 rounded-full blur-[120px] -z-10" />
+    <section className="relative pt-44 pb-32 overflow-hidden bg-slate-50">
+      {/* Dynamic Background Scrolling Layer */}
+      <div className="absolute inset-0 z-0 opacity-[0.5] rotate-[-12deg] scale-125 pointer-events-none">
+        <div className="flex flex-col gap-8 h-full">
+          <ImageMarquee images={marqueeImages} speed={25} />
+          <ImageMarquee images={[...marqueeImages].reverse()} direction="right" speed={30} />
+          <ImageMarquee images={marqueeImages} speed={20} />
+          <ImageMarquee images={[...marqueeImages].reverse()} direction="right" speed={35} />
+        </div>
+      </div>
+
+      {/* Subtle Background Image Fading Layer */}
+      <div className="absolute inset-0 z-0">
+        <AnimatePresence mode="wait">
+          <motion.img 
+            key={currentImageIndex}
+            src={marqueeImages[currentImageIndex]} 
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 0.85, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
+            className="absolute inset-0 w-full h-full object-cover"
+            alt="Engineering Growth"
+            referrerPolicy="no-referrer"
+          />
+        </AnimatePresence>
+        <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-white/30" />
+      </div>
+
+      {/* Decorative Blur Blobs */}
+      <div className="absolute top-0 left-1/4 w-[800px] h-[800px] bg-blue-100/40 rounded-full blur-[140px] -z-10 animate-pulse" />
+      <div className="absolute top-1/2 -right-64 w-[800px] h-[800px] bg-indigo-100/40 rounded-full blur-[140px] -z-10 animate-pulse" />
       
       <div className="container-custom relative z-10">
-        <div className="max-w-4xl">
+        <div className="max-w-5xl">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
+            className="relative glass p-12 md:p-16 rounded-[4rem] border-white/90 bg-white/90 shadow-2xl shadow-blue-900/10 overflow-hidden group"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-xs font-bold uppercase tracking-widest mb-8">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
-              </span>
-              Built For Brands That Want More
+            {/* Background Image Layer inside Card */}
+            <div className="absolute inset-0 -z-10 overflow-hidden">
+               <AnimatePresence mode="wait">
+                 <motion.img 
+                   key={currentImageIndex}
+                   src={marqueeImages[currentImageIndex]} 
+                   initial={{ opacity: 0 }}
+                   animate={{ opacity: 0.25 }}
+                   exit={{ opacity: 0 }}
+                   transition={{ duration: 1.5 }}
+                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[20s] ease-linear"
+                   alt="Collaboration Background"
+                   referrerPolicy="no-referrer"
+                 />
+               </AnimatePresence>
+               <div className="absolute inset-0 bg-gradient-to-tr from-white/80 via-transparent to-blue-50/10" />
             </div>
-            
+
             <h1 className="text-6xl md:text-8xl font-black text-slate-900 leading-[1.05] tracking-tight mb-8">
-              We Don’t Just <span className="text-blue-600 underline decoration-blue-200 underline-offset-8">Market</span> Brands. <br />
+              We Don’t Just <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 decoration-blue-200 underline underline-offset-8">Market</span> Brands. <br />
               We Make Them <span className="italic">Impossible To Ignore.</span>
             </h1>
             
@@ -181,11 +228,11 @@ const Hero = () => {
               Performance-driven digital marketing for brands ready to scale faster, sell smarter, and dominate online. From viral campaigns to revenue-focused ad strategies — we turn attention into growth.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 mb-20">
-              <a href="#contact" className="px-10 py-5 bg-blue-600 text-white rounded-full font-bold text-lg hover:bg-blue-700 shadow-xl shadow-blue-600/25 transition-all flex items-center justify-center gap-2 group">
-                Scale My Brand <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <div className="flex flex-col sm:flex-row gap-6 relative z-10">
+              <a href="#contact" className="px-10 py-5 bg-blue-600 text-white rounded-2xl font-bold text-lg hover:bg-blue-700 shadow-2xl shadow-blue-600/40 transition-all flex items-center justify-center gap-2 group/btn">
+                Scale My Brand <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
               </a>
-              <Link to="/portfolio" className="px-10 py-5 bg-white border border-slate-200 text-slate-900 rounded-full font-bold text-lg hover:bg-slate-50 transition-all text-center">
+              <Link to="/portfolio" className="px-10 py-5 glass text-slate-900 rounded-2xl font-bold text-lg hover:bg-white transition-all text-center flex items-center justify-center shadow-lg border-white/50">
                 View Our Work
               </Link>
             </div>
@@ -194,7 +241,7 @@ const Hero = () => {
       </div>
       
       {/* Visual Component */}
-      <div className="mt-12 space-y-4">
+      <div className="mt-20 space-y-4 relative z-10">
         <ImageMarquee images={marqueeImages} speed={40} />
       </div>
     </section>
@@ -245,11 +292,11 @@ const Services = () => {
           </h3>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {list.map((item, idx) => (
-            <div key={idx} className="bg-white p-10 rounded-3xl border border-slate-100 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-600/5 transition-all group">
-              <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-8 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                <item.icon className="w-6 h-6" />
+            <div key={idx} className="glass p-10 rounded-[2.5rem] border-white/50 hover:border-blue-300 hover:shadow-2xl hover:shadow-blue-600/10 transition-all group">
+              <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-inner">
+                <item.icon className="w-8 h-8" />
               </div>
               <h3 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">{item.title}</h3>
               <p className="text-slate-600 leading-relaxed font-medium">{item.desc}</p>
@@ -283,18 +330,20 @@ const Projects = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {showcased.map((p, i) => (
-            <div key={i} className="group relative overflow-hidden rounded-3xl bg-slate-100 aspect-[4/5] border border-slate-200 hover:shadow-2xl hover:shadow-blue-600/10 transition-all">
-               <img 
-                 src={p.img} 
-                 alt={p.name} 
-                 className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000 opacity-80"
-                 referrerPolicy="no-referrer"
-               />
-               <div className="absolute inset-x-0 bottom-0 p-8 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end h-1/2">
-                  <span className="text-blue-400 font-bold text-xs mb-2 uppercase tracking-widest">{p.val}</span>
-                  <h3 className="text-2xl font-bold text-white tracking-tight">{p.name}</h3>
+            <div key={i} className="group relative overflow-hidden rounded-[3rem] glass p-3 border-white/50 hover:shadow-2xl hover:shadow-blue-600/10 transition-all">
+               <div className="relative aspect-[4/5] overflow-hidden rounded-[2.5rem]">
+                 <img 
+                   src={p.img} 
+                   alt={p.name} 
+                   className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000 opacity-90"
+                   referrerPolicy="no-referrer"
+                 />
+                 <div className="absolute inset-x-0 bottom-0 p-8 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end h-1/2">
+                    <span className="text-blue-400 font-bold text-xs mb-2 uppercase tracking-widest">{p.val}</span>
+                    <h3 className="text-2xl font-bold text-white tracking-tight">{p.name}</h3>
+                 </div>
                </div>
             </div>
           ))}
@@ -331,9 +380,9 @@ const WhyChooseUs = () => {
             
             <div className="space-y-4">
               {points.map((p, i) => (
-                <div key={i} className="flex items-center gap-4">
-                  <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center">
-                    <CheckCircle2 className="w-4 h-4 text-white" />
+                <div key={i} className="flex items-center gap-4 group">
+                  <div className="w-8 h-8 rounded-full bg-blue-600/20 glass flex items-center justify-center group-hover:bg-blue-600 transition-colors">
+                    <CheckCircle2 className="w-4 h-4 text-blue-400 group-hover:text-white" />
                   </div>
                   <span className="text-lg font-bold text-slate-100">{p}</span>
                 </div>
@@ -342,16 +391,16 @@ const WhyChooseUs = () => {
           </div>
           
           <div className="relative">
-            <div className="aspect-square bg-slate-800 rounded-3xl overflow-hidden border border-slate-700 p-2">
+            <div className="aspect-square glass rounded-[3rem] overflow-hidden p-3">
               <img 
                 src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2670&auto=format&fit=crop" 
-                className="w-full h-full object-cover rounded-2xl opacity-60"
+                className="w-full h-full object-cover rounded-[2.5rem] opacity-70 contrast-125"
                 referrerPolicy="no-referrer"
               />
             </div>
-            <div className="absolute -bottom-10 -left-10 bg-blue-600 p-8 rounded-3xl shadow-2xl shadow-blue-600/50">
-               <p className="text-4xl font-black tracking-tighter">Growth isn’t luck.</p>
-               <p className="text-xl font-bold italic opacity-80 uppercase tracking-widest mt-2">It’s engineered.</p>
+            <div className="absolute -bottom-10 -left-10 glass p-10 rounded-[2.5rem] shadow-2xl shadow-blue-900/50 border-white/10 backdrop-blur-2xl">
+               <p className="text-4xl font-black tracking-tighter text-white">Growth isn’t luck.</p>
+               <p className="text-xl font-bold italic text-blue-400 uppercase tracking-widest mt-2">It’s engineered.</p>
             </div>
           </div>
         </div>
@@ -369,16 +418,20 @@ const Stats = () => {
   ];
 
   return (
-    <section className="py-20 bg-white border-y border-slate-100">
+    <section className="py-24 bg-white/50 backdrop-blur-sm border-y border-slate-100 relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-slate-50/50 to-transparent -z-10" />
       <div className="container-custom">
-        <div className="flex flex-col mb-12 text-center items-center">
+        <div className="flex flex-col mb-16 text-center items-center">
            <h2 className="text-sm font-bold text-blue-600 uppercase tracking-[0.3em] mb-4">Numbers That Matter</h2>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 text-center">
           {stats.map((s, i) => (
-            <div key={i} className="flex flex-col items-center">
-              <p className="text-5xl md:text-7xl font-black text-slate-900 tracking-tighter mb-4 italic">{s.val}</p>
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">{s.label}</p>
+            <div key={i} className="flex flex-col items-center group">
+              <div className="relative mb-4">
+                <p className="text-5xl md:text-7xl font-black text-slate-900 tracking-tighter italic transition-transform group-hover:scale-110 duration-500">{s.val}</p>
+                <div className="absolute -bottom-2 left-0 w-full h-1 bg-blue-100 rounded-full scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500" />
+              </div>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest leading-relaxed">{s.label}</p>
             </div>
           ))}
         </div>
@@ -389,21 +442,30 @@ const Stats = () => {
 
 const BoldSection = () => {
   return (
-    <section className="section-padding bg-slate-50 overflow-hidden">
-      <div className="container-custom">
+    <section className="section-padding bg-slate-50 overflow-hidden relative">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-blue-100/30 rounded-full blur-[120px] -z-10" />
+      
+      <div className="container-custom relative z-10">
         <div className="max-w-5xl mx-auto text-center">
-          <h2 className="text-4xl md:text-7xl font-black text-slate-900 tracking-tight leading-tight mb-10">
-            Your Competitors Are Already Online. <br />
-            The Question Is — <span className="text-blue-600 underline underline-offset-[12px] decoration-blue-200 italic">Are You Winning There?</span>
-          </h2>
-          <p className="text-2xl text-slate-600 max-w-3xl mx-auto leading-relaxed mb-16">
-            In today’s digital world, attention is currency. Brands that market better grow faster. We help businesses build visibility, authority, and predictable growth through powerful digital strategies.
-          </p>
-          <div className="flex justify-center">
-             <div className="inline-flex mt-4 p-1 px-1.5 bg-blue-600 text-white rounded-full items-center gap-4 text-sm font-black uppercase tracking-widest animate-pulse">
-                Growth Starts Here
-             </div>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="glass p-16 rounded-[4rem] border-white/60 shadow-2xl shadow-blue-100/50"
+          >
+            <h2 className="text-4xl md:text-7xl font-black text-slate-900 tracking-tight leading-tight mb-10">
+              Your Competitors Are Already Online. <br />
+              The Question Is — <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 underline underline-offset-[12px] decoration-blue-200 italic">Are You Winning There?</span>
+            </h2>
+            <p className="text-2xl text-slate-600 max-w-3xl mx-auto leading-relaxed mb-16 font-medium">
+              In today’s digital world, attention is currency. Brands that market better grow faster. We help businesses build visibility, authority, and predictable growth through powerful digital strategies.
+            </p>
+            <div className="flex justify-center">
+               <div className="inline-flex p-1 px-4 bg-blue-600 text-white rounded-full items-center gap-4 text-sm font-black uppercase tracking-widest animate-pulse shadow-lg shadow-blue-600/30">
+                  Growth Starts Here
+               </div>
+            </div>
+          </motion.div>
         </div>
       </div>
     </section>
@@ -413,30 +475,34 @@ const BoldSection = () => {
 const Contact = () => {
   return (
     <section id="contact" className="section-padding bg-slate-50 relative overflow-hidden">
+      {/* Decorative Blobs */}
+      <div className="absolute top-1/4 -right-32 w-96 h-96 bg-blue-200/40 rounded-full blur-[100px] -z-10" />
+      <div className="absolute bottom-0 -left-32 w-96 h-96 bg-indigo-200/40 rounded-full blur-[100px] -z-10" />
+      
       <div className="container-custom relative z-10">
         <div className="grid lg:grid-cols-2 gap-24 items-center">
           <div>
             <h2 className="text-sm font-bold text-blue-600 uppercase tracking-[0.4em] mb-8">Get In Touch</h2>
             <h3 className="text-5xl md:text-7xl font-black tracking-tight leading-[1.1] mb-8 text-slate-900">
-              Ready To Build A Brand People <span className="text-blue-600">Remember?</span>
+              Ready To Build A Brand People <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Remember?</span>
             </h3>
-            <p className="text-xl text-slate-600 leading-relaxed max-w-lg mb-12">
+            <p className="text-xl text-slate-600 leading-relaxed max-w-lg mb-12 font-medium">
               Whether you’re launching, scaling, or rebranding — ConnexerDigi helps you grow with strategies designed for long-term impact.
             </p>
             
             <div className="space-y-10">
-               <div className="flex items-start gap-6">
-                  <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-slate-200/50">
-                    <MapPin className="w-5 h-5 text-blue-600" />
+               <div className="flex items-start gap-6 group">
+                  <div className="w-14 h-14 glass rounded-2xl flex items-center justify-center shadow-lg group-hover:bg-blue-600 group-hover:text-white transition-all">
+                    <MapPin className="w-6 h-6 text-blue-600 group-hover:text-white" />
                   </div>
                   <div>
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Office</p>
                     <p className="text-lg font-bold text-slate-800">Road #12, Banjara Hills, Hyderabad</p>
                   </div>
                </div>
-               <div className="flex items-start gap-6">
-                  <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-slate-200/50">
-                    <Mail className="w-5 h-5 text-blue-600" />
+               <div className="flex items-start gap-6 group">
+                  <div className="w-14 h-14 glass rounded-2xl flex items-center justify-center shadow-lg group-hover:bg-blue-600 group-hover:text-white transition-all">
+                    <Mail className="w-6 h-6 text-blue-600 group-hover:text-white" />
                   </div>
                   <div>
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Email</p>
@@ -446,7 +512,7 @@ const Contact = () => {
                
                <div className="flex gap-4">
                  {[Linkedin, Instagram, Twitter, Facebook].map((Icon, i) => (
-                   <a key={i} href="#" className="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center hover:bg-blue-600 hover:border-blue-600 hover:text-white transition-all text-slate-600">
+                   <a key={i} href="#" className="w-12 h-12 rounded-full glass border border-slate-200 flex items-center justify-center hover:bg-blue-600 hover:border-blue-600 hover:text-white transition-all text-slate-600">
                      <Icon className="w-5 h-5" />
                    </a>
                  ))}
@@ -454,23 +520,23 @@ const Contact = () => {
             </div>
           </div>
 
-          <div className="bg-white p-12 rounded-[2.5rem] shadow-2xl shadow-slate-200 border border-slate-100">
-             <h4 className="text-2xl font-bold text-slate-900 mb-8">Book A Free Consultation</h4>
+          <div className="glass p-12 rounded-[3.5rem] shadow-2xl border-white/40">
+             <h4 className="text-3xl font-bold text-slate-900 mb-8 tracking-tight">Book A Free Consultation</h4>
              <form className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Your Name</label>
-                    <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-semibold" />
+                    <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-4">Your Name</label>
+                    <input type="text" className="w-full bg-white/50 backdrop-blur-sm border border-slate-200 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 focus:bg-white transition-all font-semibold shadow-inner" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Email Address</label>
-                    <input type="email" className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-semibold" />
+                    <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-4">Email Address</label>
+                    <input type="email" className="w-full bg-white/50 backdrop-blur-sm border border-slate-200 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 focus:bg-white transition-all font-semibold shadow-inner" />
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Interested In</label>
-                  <select className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-semibold appearance-none">
+                  <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-4">Interested In</label>
+                  <select className="w-full bg-white/50 backdrop-blur-sm border border-slate-200 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 focus:bg-white transition-all font-semibold appearance-none shadow-inner">
                     <option>Performance Marketing</option>
                     <option>Social Media Management</option>
                     <option>Creative Strategy</option>
@@ -479,11 +545,11 @@ const Contact = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-widest text-slate-400">Message</label>
-                  <textarea rows={4} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 transition-all font-semibold resize-none" />
+                  <label className="text-xs font-bold uppercase tracking-widest text-slate-400 ml-4">Message</label>
+                  <textarea rows={4} className="w-full bg-white/50 backdrop-blur-sm border border-slate-200 rounded-2xl px-6 py-4 outline-none focus:border-blue-600 focus:bg-white transition-all font-semibold resize-none shadow-inner" />
                 </div>
 
-                <button className="w-full py-5 bg-blue-600 text-white rounded-2xl font-bold text-lg flex items-center justify-center gap-3 hover:bg-blue-700 shadow-xl shadow-blue-600/20 transition-all">
+                <button className="w-full py-5 bg-blue-600 text-white rounded-2xl font-bold text-lg flex items-center justify-center gap-3 hover:bg-blue-700 shadow-xl shadow-blue-600/30 transition-all active:scale-[0.98]">
                   Send Inquiry <ArrowRight className="w-5 h-5" />
                 </button>
              </form>
@@ -607,18 +673,18 @@ export default function App() {
                         <p className="text-xl text-slate-600 max-w-2xl font-medium">Growth solutions built for modern brands. We engineer systems that scale your reach and conversion simultaneously.</p>
                      </div>
                      <Services />
-                     <div className="mt-20 p-16 bg-slate-50 rounded-[3rem] border border-slate-100 relative overflow-hidden">
+                     <div className="mt-20 p-16 glass rounded-[3rem] border-white/50 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/5 blur-[100px] rounded-full" />
                         <h2 className="text-3xl font-bold text-slate-900 mb-10 tracking-tight uppercase">Detailed Capabilities Registry</h2>
                         <ul className="grid md:grid-cols-2 gap-10 text-slate-600 font-bold uppercase tracking-widest text-sm relative z-10">
-                           <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 bg-blue-600 rounded-full" /> Advanced SEO Audits</li>
-                           <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 bg-blue-600 rounded-full" /> Technical SEO Infrastructure</li>
-                           <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 bg-blue-600 rounded-full" /> High-ROAS Performance Marketing</li>
-                           <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 bg-blue-600 rounded-full" /> Meta Ads & Creative Strategy</li>
-                           <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 bg-blue-600 rounded-full" /> Social Media Viral Engineering</li>
-                           <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 bg-blue-600 rounded-full" /> Premium Web & Mobile Applications</li>
-                           <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 bg-blue-600 rounded-full" /> Data Analytics & BI Dashboards</li>
-                           <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 bg-blue-600 rounded-full" /> Brand Identity & Logo Design</li>
+                           <li className="flex items-center gap-3"><div className="w-2 h-2 bg-blue-600 rounded-full shadow-lg shadow-blue-600/50" /> Advanced SEO Audits</li>
+                           <li className="flex items-center gap-3"><div className="w-2 h-2 bg-blue-600 rounded-full shadow-lg shadow-blue-600/50" /> Technical SEO Infrastructure</li>
+                           <li className="flex items-center gap-3"><div className="w-2 h-2 bg-blue-600 rounded-full shadow-lg shadow-blue-600/50" /> High-ROAS Performance Marketing</li>
+                           <li className="flex items-center gap-3"><div className="w-2 h-2 bg-blue-600 rounded-full shadow-lg shadow-blue-600/50" /> Meta Ads & Creative Strategy</li>
+                           <li className="flex items-center gap-3"><div className="w-2 h-2 bg-blue-600 rounded-full shadow-lg shadow-blue-600/50" /> Social Media Viral Engineering</li>
+                           <li className="flex items-center gap-3"><div className="w-2 h-2 bg-blue-600 rounded-full shadow-lg shadow-blue-600/50" /> Premium Web & Mobile Applications</li>
+                           <li className="flex items-center gap-3"><div className="w-2 h-2 bg-blue-600 rounded-full shadow-lg shadow-blue-600/50" /> Data Analytics & BI Dashboards</li>
+                           <li className="flex items-center gap-3"><div className="w-2 h-2 bg-blue-600 rounded-full shadow-lg shadow-blue-600/50" /> Brand Identity & Logo Design</li>
                         </ul>
                      </div>
                   </div>
@@ -640,8 +706,8 @@ export default function App() {
                            "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=2670&auto=format&fit=crop",
                            "https://images.unsplash.com/photo-1556761175-b413da4baf72?q=80&w=2574&auto=format&fit=crop"
                         ].map((url, i) => (
-                           <div key={i} className="aspect-square bg-slate-50 rounded-3xl overflow-hidden border border-slate-100">
-                              <img src={url} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all opacity-40 hover:opacity-100" referrerPolicy="no-referrer" />
+                           <div key={i} className="aspect-square glass rounded-3xl overflow-hidden border-white/50 p-2">
+                              <img src={url} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all opacity-60 hover:opacity-100 rounded-2xl" referrerPolicy="no-referrer" />
                            </div>
                         ))}
                      </div>
